@@ -103,29 +103,35 @@ const App: React.FC = () => {
   };
 
   const handleThumbsUp = async () => {
-    if (aiStatus === 'generating' || aiStatus === 'counting') return;
+    // 关键修复：生成中、展示中、倒计时中都不允许再次触发
+    if (aiStatus === 'generating' || aiStatus === 'showing' || aiStatus === 'counting') {
+      // 如果已经在展示 AI 图 → 点赞 3 秒 = 关闭
+      if (aiStatus === 'showing') {
+        setAiStatus('idle');
+        setGeneratedImage(null);
+        setViewMode('original'); // 可选：关闭时回到原图
+        setThumbsUpProgress(0);
+        return;
+      }
+      // 其他情况（生成中或倒计时中）直接阻止重复触发
+      return;
+    }
   
-    // 1. 进入生成状态
+    // 正常第一次生成
     setAiStatus('generating');
   
     try {
-      // 2. 获取当前画布快照（纯白底 + 用户手绘）
       const snapshot = drawingCanvasRef.current?.getSnapshot();
       if (!snapshot) throw new Error('无法获取画布快照');
   
-      // 3. 把 dataURL 转成纯 base64（去掉前缀）
       const base64 = snapshot.replace(/^data:image\/(png|jpeg);base64,/, '');
-  
-      // 4. 调用 SiliconFlow
       const imageUrl = await generateWithSiliconFlow(base64);
   
-      // 5. 生成成功 → 直接使用返回的 URL 作为 <img src>
       setGeneratedImage(imageUrl);
       setAiStatus('showing');
-      setViewMode('ai'); // 默认展示 AI 结果
+      setViewMode('ai');
     } catch (err: any) {
-      console.error('SiliconFlow 生成失败:', err);
-      // 出错后回到 idle（也可以加个错误提示 UI）
+      console.error(err);
       setAiStatus('idle');
       setGeneratedImage(null);
       alert('AI 生成失败：' + err.message);
