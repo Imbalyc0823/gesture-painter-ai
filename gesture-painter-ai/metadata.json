@@ -1,0 +1,7 @@
+{
+  "name": "Copy3 of Gesture Painter",
+  "description": "A web-based drawing application controlled entirely by hand gestures using MediaPipe Hands.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
