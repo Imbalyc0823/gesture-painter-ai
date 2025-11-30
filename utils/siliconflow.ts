@@ -1,6 +1,6 @@
 // src/utils/siliconflow.ts
 export const generateWithSiliconFlow = async (base64Image: string): Promise<string> => {
-  const API_KEY = process.env.SILICONFLOW_API_KEY;
+  const API_KEY = process.env.VITE_SILICONFLOW_API_KEY;
   if (!API_KEY || API_KEY.includes('PLACEHOLDER')) {
     throw new Error('请在 .env.local 中配置 SILICONFLOW_API_KEY');
   }
